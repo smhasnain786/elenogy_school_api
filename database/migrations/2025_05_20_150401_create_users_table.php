@@ -13,7 +13,7 @@ return new class extends Migration
             $table->id('user_id');
             $table->foreignId('school_id')->constrained('schools', 'school_id')->onDelete('cascade');
             $table->string('email', 255)->unique();
-            $table->string('password_hash', 255);
+            $table->string('password', 255);
             $table->string('user_type', 20);
             $table->char('CDC_FLAG', 1)->default('A');
             $table->date('valid_from')->default(DB::raw('CURRENT_DATE'));

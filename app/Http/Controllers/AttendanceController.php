@@ -7,7 +7,7 @@ use App\Models\StaffAttendance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class ClassAttendanceController extends Controller
+class AttendanceController extends Controller
 {
     // Student Attendance Methods
     public function studentIndex(Request $request)

@@ -75,12 +75,12 @@ class AuthController extends Controller
         }
 
         // Generate CSRF token
-        $csrfToken = Str::random(60);
+        $csrfToken = bin2hex(random_bytes(32));
         $hashedToken = Hash::make($csrfToken);
 
         // Store CSRF token in database
         CsrfToken::create([
-            'user_id' => auth()->user()->user_id,
+            'user_id' => JWTAuth::user()->user_id,
             'token' => $hashedToken,
             'expires_at' => now()->addHours(2)
         ]);
@@ -94,7 +94,7 @@ class AuthController extends Controller
     public function logout()
     {
         // Get the authenticated user
-        $user = auth()->user();
+        $user = JWTAuth::user();
         
         // Invalidate the JWT token
         JWTAuth::invalidate(JWTAuth::getToken());
@@ -119,7 +119,7 @@ class AuthController extends Controller
             
             // Store new CSRF token
             CsrfToken::create([
-                'user_id' => auth()->user()->user_id,
+                'user_id' => JWTAuth::user()->user_id,
                 'token' => $hashedToken,
                 'expires_at' => now()->addHours(2)
             ]);
@@ -135,7 +135,7 @@ class AuthController extends Controller
      */
     public function me()
     {
-        $user = auth()->user();
+        $user = JWTAuth::user();
         $roles = $user->roles()->pluck('role_name');
         
         return response()->json([
@@ -155,9 +155,9 @@ class AuthController extends Controller
             'token_type' => 'bearer',
             'expires_in' => JWTAuth::factory()->getTTL() * 60,
             'xsrf_token' => $csrfToken,
-            'user' => auth()->user(),
-            'roles' => auth()->user()->roles()->pluck('role_name'),
-            'permissions' => $this->getUserPermissions(auth()->user())
+            'user' => JWTAuth::user(),
+            'roles' => JWTAuth::user()->roles()->pluck('role_name'),
+            'permissions' => $this->getUserPermissions(JWTAuth::user())
         ]);
     }
 

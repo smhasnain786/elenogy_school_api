@@ -14,7 +14,13 @@ class User extends Authenticatable implements JWTSubject
     public $timestamps = false;
 
     protected $fillable = [
-        'email', 'password', 'user_type', 'school_id', 'CDC_FLAG', 'valid_from', 'valid_to'
+        'email',
+        'password',
+        'user_type',
+        'school_id',
+        'CDC_FLAG',
+        'valid_from',
+        'valid_to'
     ];
 
     protected $hidden = [
@@ -33,7 +39,7 @@ class User extends Authenticatable implements JWTSubject
         return [
             'user_type' => $this->user_type,
             'school_id' => $this->school_id,
-            'roles' => $this->roles()->pluck('role_name')->toArray()
+            'roles' => $this->roles->pluck('role_name')->toArray()  // Use property, not method
         ];
     }
 
@@ -41,13 +47,18 @@ class User extends Authenticatable implements JWTSubject
     public function roles()
     {
         return $this->belongsToMany(Role::class, 'user_roles', 'user_id', 'role_id')
+            ->withPivot(['CDC_FLAG', 'valid_from', 'valid_to'])
             ->wherePivot('CDC_FLAG', 'A')
             ->wherePivot('valid_from', '<=', now())
-            ->where(function($query) {
-                $query->wherePivot('valid_to', '>=', now())
-                      ->orWhereNull('valid_to');
+            ->where(function ($query) {
+                $query->where('user_roles.valid_to', '>=', now())
+                    ->orWhereNull('user_roles.valid_to');
             });
     }
+
+
+
+
 
     // Check if user has a role
     public function hasRole($role)
